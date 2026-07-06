@@ -1,0 +1,76 @@
+{
+  "name": "zef-pulse",
+  "productName": "Zef Pulse",
+  "version": "1.0.0",
+  "description": "Draft and publish LinkedIn posts from your desktop. By Zef Technology.",
+  "main": "electron/main.cjs",
+  "author": "Zef Technology",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development electron .\"",
+    "electron:preview": "cross-env NODE_ENV=production electron .",
+    "obfuscate": "node scripts/obfuscate.cjs",
+    "dist": "vite build && npm run obfuscate && electron-builder"
+  },
+  "dependencies": {
+    "@fontsource/fraunces": "^5.1.0",
+    "@fontsource/inter": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.0",
+    "lucide-react": "^0.383.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.9",
+    "electron-builder": "^24.13.3",
+    "javascript-obfuscator": "^4.1.1",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "vite": "^5.3.1",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.zeftechnology.zefpulse",
+    "productName": "Zef Pulse",
+    "directories": {
+      "output": "release"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "YOUR_GITHUB_USERNAME",
+      "repo": "YOUR_REPO_NAME"
+    },
+    "asar": true,
+    "extraMetadata": {
+      "main": "electron-prod/main.cjs"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-prod/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "artifactName": "ZefPulseSetup.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}
