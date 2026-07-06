@@ -45,10 +45,10 @@
       "output": "release"
     },
     "publish": {
-      "provider": "github",
-      "owner": "YOUR_GITHUB_USERNAME",
-      "repo": "YOUR_REPO_NAME"
-    },
+  "provider": "github",
+  "owner": "zeeshanfarooq786",
+  "repo": "zef-pulse"
+},
     "asar": true,
     "extraMetadata": {
       "main": "electron-prod/main.cjs"
