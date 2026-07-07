@@ -1,5 +1,6 @@
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+// gemini-2.0-flash was shut down June 2026; try current models in order.
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3-flash-preview'];
 
 const SYSTEM_PROMPT = `You punch up LinkedIn post drafts. Keep every fact, claim, and hashtag from
 the original — do not invent details or remove substance. Make the tone warmer and more
@@ -41,8 +42,8 @@ async function punchUpAnthropic({ apiKey, text }) {
   return rewritten.trim();
 }
 
-async function punchUpGemini({ apiKey, text }) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+async function punchUpGeminiWithModel({ apiKey, text, model }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -61,13 +62,40 @@ async function punchUpGemini({ apiKey, text }) {
     } catch (_e) {
       /* ignore */
     }
-    throw new Error(`AI rewrite failed (${res.status}) ${detail}`);
+    const err = new Error(`AI rewrite failed (${res.status}) ${detail}`);
+    err.status = res.status;
+    throw err;
   }
 
   const data = await res.json();
   const rewritten = data?.candidates?.[0]?.content?.parts?.find((part) => part.text)?.text;
   if (!rewritten) throw new Error('AI returned no text.');
   return rewritten.trim();
+}
+
+function isGeminiQuotaError(err) {
+  const message = err?.message || '';
+  return err?.status === 429 || /quota|limit:\s*0|RESOURCE_EXHAUSTED/i.test(message);
+}
+
+async function punchUpGemini({ apiKey, text }) {
+  let lastError;
+
+  for (const model of GEMINI_MODELS) {
+    try {
+      return await punchUpGeminiWithModel({ apiKey, text, model });
+    } catch (err) {
+      lastError = err;
+      if (!isGeminiQuotaError(err)) throw err;
+    }
+  }
+
+  throw new Error(
+    `${lastError?.message || 'Gemini quota exceeded.'}\n\n` +
+      'Tips: In Google AI Studio, open your project → Billing → link a billing account ' +
+      '(free-tier limits still apply). Also confirm the Generative Language API is enabled ' +
+      'for your key at https://aistudio.google.com/apikey'
+  );
 }
 
 async function punchUp({ provider = 'anthropic', apiKey, text }) {

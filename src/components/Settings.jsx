@@ -12,7 +12,7 @@ const AI_PROVIDERS = {
     label: 'Google Gemini',
     placeholder: 'AIza...',
     keyUrl: 'https://aistudio.google.com/apikey',
-    hint: 'Free or paid API key from Google AI Studio — same key works for both tiers.',
+    hint: 'Uses Gemini 2.5 Flash. Link billing in Google AI Studio to activate free-tier quota (you are not charged within free limits).',
   },
 };
 
