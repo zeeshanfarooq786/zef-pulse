@@ -1,32 +1,63 @@
-import logoUrl from '/logo.svg';
+import iconUrl from '/icon.png';
+import wordmarkSmallUrl from '/wordmark-small.png';
+import wordmarkFullUrl from '/wordmark-full.png';
 
-export { logoUrl };
+export { iconUrl, wordmarkSmallUrl, wordmarkFullUrl };
 
-export default function AppLogo({ size = 'md', showWordmark = false, subtitle, className = '' }) {
-  const sizes = {
-    xs: { img: 'w-4 h-4 rounded-[3px]', title: 'text-[13px]', sub: 'text-[9px]' },
-    sm: { img: 'w-8 h-8 rounded-lg', title: 'text-sm', sub: 'text-[10px]' },
-    md: { img: 'w-10 h-10 rounded-xl shadow-lg shadow-black/20', title: 'text-base', sub: 'text-[10px]' },
-    lg: { img: 'w-16 h-16 rounded-2xl shadow-xl shadow-brand/20', title: 'text-2xl', sub: 'text-xs' },
-  };
-  const s = sizes[size] || sizes.md;
+const VARIANTS = {
+  icon: iconUrl,
+  'wordmark-small': wordmarkSmallUrl,
+  'wordmark-full': wordmarkFullUrl,
+};
 
-  if (!showWordmark) {
-    return <img src={logoUrl} alt="Zef Pulse" className={`${s.img} ${className}`} />;
+const SIZES = {
+  xs: {
+    icon: 'h-5 w-5 rounded-[4px] object-cover',
+    'wordmark-small': 'h-4 w-auto max-w-[88px] object-contain',
+    'wordmark-full': 'h-5 w-auto max-w-[120px] object-contain',
+  },
+  sm: {
+    icon: 'h-9 w-9 rounded-lg object-cover',
+    'wordmark-small': 'h-7 w-auto max-w-[140px] object-contain',
+    'wordmark-full': 'h-9 w-auto max-w-[180px] object-contain',
+  },
+  md: {
+    icon: 'h-11 w-11 rounded-xl object-cover shadow-lg shadow-black/20',
+    'wordmark-small': 'h-8 w-auto max-w-[160px] object-contain',
+    'wordmark-full': 'h-11 w-auto max-w-[220px] object-contain',
+  },
+  lg: {
+    icon: 'h-16 w-16 rounded-2xl object-cover shadow-xl shadow-brand/20',
+    'wordmark-small': 'h-10 w-auto max-w-[200px] object-contain',
+    'wordmark-full': 'h-14 w-auto max-w-[280px] object-contain',
+  },
+};
+
+export default function AppLogo({
+  variant = 'icon',
+  size = 'md',
+  subtitle,
+  className = '',
+}) {
+  const src = VARIANTS[variant] || VARIANTS.icon;
+  const sizeClass = SIZES[size]?.[variant] || SIZES.md.icon;
+
+  if (variant === 'icon' && subtitle) {
+    return (
+      <div className={`flex items-center gap-3 ${className}`}>
+        <img src={src} alt="Zef Pulse" className={sizeClass} />
+        {subtitle && (
+          <div className="text-[10px] tracking-[0.18em] uppercase text-canvas/40">{subtitle}</div>
+        )}
+      </div>
+    );
   }
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div className="relative shrink-0">
-        <img src={logoUrl} alt="" className={s.img} />
-        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-soft border-2 border-ink" />
-      </div>
-      <div className="min-w-0">
-        <div className={`font-display font-semibold leading-tight text-canvas ${s.title}`}>Zef Pulse</div>
-        {subtitle && (
-          <div className={`tracking-[0.18em] uppercase text-canvas/40 ${s.sub}`}>{subtitle}</div>
-        )}
-      </div>
-    </div>
+    <img
+      src={src}
+      alt="Zef Pulse"
+      className={`${sizeClass} ${className}`}
+    />
   );
 }

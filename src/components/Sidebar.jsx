@@ -11,7 +11,10 @@ export default function Sidebar({ view, setView, connected, profile }) {
     <div className="w-56 shrink-0 bg-ink text-canvas/90 flex flex-col justify-between pb-4">
       <div>
         <div className="px-4 pt-5 pb-5 border-b border-white/10 mx-3 mb-3">
-          <AppLogo size="md" showWordmark subtitle="LinkedIn studio" />
+          <AppLogo variant="wordmark-full" size="md" className="brightness-0 invert opacity-95" />
+          <div className="mt-2 text-[10px] tracking-[0.18em] uppercase text-canvas/35">
+            LinkedIn studio
+          </div>
         </div>
 
         <nav className="px-3 space-y-1">

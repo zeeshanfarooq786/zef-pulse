@@ -1,7 +1,7 @@
 {
   "name": "zef-pulse",
   "productName": "Zef Pulse",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Draft and publish LinkedIn posts from your desktop. By Zef Technology.",
   "main": "electron/main.cjs",
   "author": "Zef Technology",

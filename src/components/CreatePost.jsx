@@ -116,7 +116,7 @@ export default function CreatePost({ connected, profile, goToSettings }) {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-sm">
           <div className="flex justify-center mb-5">
-            <AppLogo size="lg" />
+            <AppLogo variant="wordmark-full" size="lg" />
           </div>
           <h2 className="font-display text-xl text-ink mb-2">Connect your LinkedIn account</h2>
           <p className="text-sm text-ink/50 mb-5">
@@ -135,8 +135,8 @@ export default function CreatePost({ connected, profile, goToSettings }) {
 
   return (
     <div className="flex-1 flex flex-col p-8 overflow-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <AppLogo size="sm" />
+      <div className="flex items-center gap-4 mb-6">
+        <AppLogo variant="wordmark-full" size="sm" />
         <div>
           <h1 className="font-display text-2xl text-ink leading-tight">Create post</h1>
           <p className="text-sm text-ink/50">Write on the left, see exactly what ships on the right.</p>
