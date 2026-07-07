@@ -1,4 +1,5 @@
-const MODEL = 'claude-sonnet-5';
+const ANTHROPIC_MODEL = 'claude-sonnet-5';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
 const SYSTEM_PROMPT = `You punch up LinkedIn post drafts. Keep every fact, claim, and hashtag from
 the original — do not invent details or remove substance. Make the tone warmer and more
@@ -7,7 +8,7 @@ per line, just enough to feel human). Keep roughly the same length. Output ONLY 
 rewritten post text, with no preamble, no quotation marks, and no commentary about what
 you changed.`;
 
-async function punchUp({ apiKey, text }) {
+async function punchUpAnthropic({ apiKey, text }) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -16,7 +17,7 @@ async function punchUp({ apiKey, text }) {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: ANTHROPIC_MODEL,
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: text }],
@@ -38,6 +39,42 @@ async function punchUp({ apiKey, text }) {
   const rewritten = data?.content?.find((block) => block.type === 'text')?.text;
   if (!rewritten) throw new Error('AI returned no text.');
   return rewritten.trim();
+}
+
+async function punchUpGemini({ apiKey, text }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: [{ role: 'user', parts: [{ text }] }],
+      generationConfig: { maxOutputTokens: 1024 },
+    }),
+  });
+
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = body?.error?.message || JSON.stringify(body);
+    } catch (_e) {
+      /* ignore */
+    }
+    throw new Error(`AI rewrite failed (${res.status}) ${detail}`);
+  }
+
+  const data = await res.json();
+  const rewritten = data?.candidates?.[0]?.content?.parts?.find((part) => part.text)?.text;
+  if (!rewritten) throw new Error('AI returned no text.');
+  return rewritten.trim();
+}
+
+async function punchUp({ provider = 'anthropic', apiKey, text }) {
+  if (provider === 'gemini') {
+    return punchUpGemini({ apiKey, text });
+  }
+  return punchUpAnthropic({ apiKey, text });
 }
 
 module.exports = { punchUp };

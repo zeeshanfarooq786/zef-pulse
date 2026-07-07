@@ -1,25 +1,50 @@
 import { useEffect, useState } from 'react';
 import { Loader2, ExternalLink, CheckCircle2, Sparkles } from 'lucide-react';
 
+const AI_PROVIDERS = {
+  anthropic: {
+    label: 'Anthropic (Claude)',
+    placeholder: 'sk-ant-...',
+    keyUrl: 'https://console.anthropic.com/settings/keys',
+    hint: 'Paid API key from the Anthropic console.',
+  },
+  gemini: {
+    label: 'Google Gemini',
+    placeholder: 'AIza...',
+    keyUrl: 'https://aistudio.google.com/apikey',
+    hint: 'Free or paid API key from Google AI Studio — same key works for both tiers.',
+  },
+};
+
 export default function Settings({ connected, profile, onConnected, onDisconnect }) {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
+  const [aiProvider, setAiProvider] = useState('anthropic');
   const [aiKey, setAiKey] = useState('');
   const [hasAiKey, setHasAiKey] = useState(false);
+  const [savedProvider, setSavedProvider] = useState('anthropic');
   const [savingAiKey, setSavingAiKey] = useState(false);
 
+  const providerConfig = AI_PROVIDERS[aiProvider];
+
   useEffect(() => {
-    window.zefPulse.aiStatus().then((res) => setHasAiKey(res.hasKey));
+    window.zefPulse.aiStatus().then((res) => {
+      setHasAiKey(res.hasKey);
+      const provider = res.provider || 'anthropic';
+      setSavedProvider(provider);
+      setAiProvider(provider);
+    });
   }, []);
 
   const handleSaveAiKey = async () => {
     if (!aiKey.trim()) return;
     setSavingAiKey(true);
-    await window.zefPulse.setAiKey(aiKey.trim());
+    await window.zefPulse.setAiKey(aiProvider, aiKey.trim());
     setHasAiKey(true);
+    setSavedProvider(aiProvider);
     setAiKey('');
     setSavingAiKey(false);
   };
@@ -143,14 +168,14 @@ export default function Settings({ connected, profile, onConnected, onDisconnect
         </h2>
         <p className="text-xs text-ink/55 leading-relaxed mb-3">
           Adds a "Punch it up" button on the Create Post screen that rewrites your draft
-          with more personality and emoji, using your own Anthropic API key.
+          with more personality and emoji, using your own API key.
         </p>
 
         {hasAiKey ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-ok font-medium">
               <CheckCircle2 size={16} />
-              API key saved
+              API key saved ({AI_PROVIDERS[savedProvider]?.label || 'Anthropic'})
             </div>
             <button onClick={handleClearAiKey} className="text-sm text-err font-medium hover:underline">
               Remove key
@@ -158,19 +183,34 @@ export default function Settings({ connected, profile, onConnected, onDisconnect
           </div>
         ) : (
           <div className="space-y-2">
+            <div>
+              <label className="text-xs font-medium text-ink/60">AI provider</label>
+              <select
+                value={aiProvider}
+                onChange={(e) => setAiProvider(e.target.value)}
+                className="w-full mt-1 rounded border border-line bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+              >
+                {Object.entries(AI_PROVIDERS).map(([id, config]) => (
+                  <option key={id} value={id}>
+                    {config.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-ink/40 mt-1">{providerConfig.hint}</p>
+            </div>
             <input
               type="password"
               value={aiKey}
               onChange={(e) => setAiKey(e.target.value)}
-              placeholder="sk-ant-..."
+              placeholder={providerConfig.placeholder}
               className="w-full rounded border border-line bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
             />
             <div className="flex items-center justify-between">
               <a
-                href="https://console.anthropic.com/settings/keys"
+                href={providerConfig.keyUrl}
                 onClick={(e) => {
                   e.preventDefault();
-                  window.zefPulse.openExternal('https://console.anthropic.com/settings/keys');
+                  window.zefPulse.openExternal(providerConfig.keyUrl);
                 }}
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-dim hover:underline"
               >

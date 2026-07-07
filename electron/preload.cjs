@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld('zefPulse', {
   publishPost: (text) => ipcRenderer.invoke('post:publish', { text }),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
   aiStatus: () => ipcRenderer.invoke('ai:getStatus'),
-  setAiKey: (apiKey) => ipcRenderer.invoke('ai:setKey', apiKey),
+  setAiKey: (provider, apiKey) => ipcRenderer.invoke('ai:setKey', { provider, apiKey }),
   clearAiKey: () => ipcRenderer.invoke('ai:clearKey'),
   punchUp: (text) => ipcRenderer.invoke('ai:punchUp', { text }),
   windowControls: {

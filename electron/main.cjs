@@ -111,26 +111,30 @@ ipcMain.handle('auth:logout', () => {
 // ---- AI polish ----
 ipcMain.handle('ai:getStatus', () => {
   const saved = store.load();
-  return { hasKey: !!saved?.aiApiKey };
+  return {
+    hasKey: !!saved?.aiApiKey,
+    provider: saved?.aiProvider || 'anthropic',
+  };
 });
 
-ipcMain.handle('ai:setKey', (_e, apiKey) => {
-  store.patch({ aiApiKey: apiKey });
+ipcMain.handle('ai:setKey', (_e, { provider, apiKey }) => {
+  store.patch({ aiProvider: provider || 'anthropic', aiApiKey: apiKey });
   return { success: true };
 });
 
 ipcMain.handle('ai:clearKey', () => {
-  store.remove(['aiApiKey']);
+  store.remove(['aiApiKey', 'aiProvider']);
   return { success: true };
 });
 
 ipcMain.handle('ai:punchUp', async (_e, { text }) => {
   const saved = store.load();
   if (!saved?.aiApiKey) {
-    return { success: false, error: 'Add an Anthropic API key in Settings first.' };
+    return { success: false, error: 'Add an AI API key in Settings first.' };
   }
+  const provider = saved.aiProvider || 'anthropic';
   try {
-    const rewritten = await aiPolish.punchUp({ apiKey: saved.aiApiKey, text });
+    const rewritten = await aiPolish.punchUp({ provider, apiKey: saved.aiApiKey, text });
     return { success: true, text: rewritten };
   } catch (err) {
     return { success: false, error: err.message };
