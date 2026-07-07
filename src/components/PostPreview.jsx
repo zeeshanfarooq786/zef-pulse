@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ThumbsUp, MessageCircle, Repeat2, Send } from 'lucide-react';
 
-export default function PostPreview({ text, profile }) {
+export default function PostPreview({ text, imageUrl, profile }) {
   const [imgFailed, setImgFailed] = useState(false);
   const displayName = profile?.name || 'Your Name';
   const headline = profile?.headline || 'Your headline appears here';
@@ -41,10 +41,16 @@ export default function PostPreview({ text, profile }) {
         <div className="px-3.5 pb-3 text-[14px] leading-[1.45] text-ink whitespace-pre-wrap break-words min-h-[3rem]">
           {text ? (
             text
-          ) : (
+          ) : imageUrl ? null : (
             <span className="text-ink/30 italic">Your post will appear here as you type…</span>
           )}
         </div>
+
+        {imageUrl && (
+          <div className="border-t border-line bg-canvas/40">
+            <img src={imageUrl} alt="" className="w-full max-h-72 object-cover" />
+          </div>
+        )}
 
         <div className="border-t border-line px-3.5 py-2 flex items-center justify-between text-ink/50">
           {[

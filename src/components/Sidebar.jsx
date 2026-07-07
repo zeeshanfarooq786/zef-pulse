@@ -1,4 +1,5 @@
 import { PenLine, Settings as SettingsIcon, Circle } from 'lucide-react';
+import AppLogo from './AppLogo.jsx';
 
 export default function Sidebar({ view, setView, connected, profile }) {
   const items = [
@@ -8,7 +9,11 @@ export default function Sidebar({ view, setView, connected, profile }) {
 
   return (
     <div className="w-56 shrink-0 bg-ink text-canvas/90 flex flex-col justify-between pb-4">
-      <div className="pt-5">
+      <div>
+        <div className="px-4 pt-5 pb-5 border-b border-white/10 mx-3 mb-3">
+          <AppLogo size="md" showWordmark subtitle="LinkedIn studio" />
+        </div>
+
         <nav className="px-3 space-y-1">
           {items.map((item) => {
             const Icon = item.icon;

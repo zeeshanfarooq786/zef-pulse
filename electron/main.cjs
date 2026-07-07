@@ -142,16 +142,20 @@ ipcMain.handle('ai:punchUp', async (_e, { text }) => {
 });
 
 // ---- Posting ----
-ipcMain.handle('post:publish', async (_e, { text }) => {
+ipcMain.handle('post:publish', async (_e, { text, image }) => {
   const saved = store.load();
   if (!saved?.accessToken) {
     return { success: false, error: 'Not connected to LinkedIn.' };
+  }
+  if (!text?.trim() && !image?.data) {
+    return { success: false, error: 'Add some text or an image before publishing.' };
   }
   try {
     const { postId } = await linkedin.publishPost({
       accessToken: saved.accessToken,
       personUrn: saved.personUrn,
-      text,
+      text: text || '',
+      image,
     });
     return { success: true, postId };
   } catch (err) {

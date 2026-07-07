@@ -1,4 +1,5 @@
 import { Minus, Square, X } from 'lucide-react';
+import AppLogo from './AppLogo.jsx';
 
 export default function TitleBar() {
   const controls = window.zefPulse?.windowControls;
@@ -6,7 +7,7 @@ export default function TitleBar() {
   return (
     <div className="drag-region h-9 flex items-center justify-between pl-4 pr-2 bg-ink text-canvas/80 select-none">
       <div className="flex items-center gap-2 text-[13px] font-medium tracking-wide">
-        <img src="/logo.png" alt="" className="w-4 h-4 rounded-[3px]" />
+        <AppLogo size="xs" />
         Zef Pulse
       </div>
       <div className="no-drag flex items-center">

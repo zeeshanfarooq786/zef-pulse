@@ -4,7 +4,7 @@ contextBridge.exposeInMainWorld('zefPulse', {
   authStatus: () => ipcRenderer.invoke('auth:status'),
   login: (clientId, clientSecret) => ipcRenderer.invoke('auth:login', { clientId, clientSecret }),
   logout: () => ipcRenderer.invoke('auth:logout'),
-  publishPost: (text) => ipcRenderer.invoke('post:publish', { text }),
+  publishPost: (text, image) => ipcRenderer.invoke('post:publish', { text, image }),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
   aiStatus: () => ipcRenderer.invoke('ai:getStatus'),
   setAiKey: (provider, apiKey) => ipcRenderer.invoke('ai:setKey', { provider, apiKey }),

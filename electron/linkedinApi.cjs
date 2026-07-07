@@ -54,8 +54,39 @@ async function fetchUserInfo(accessToken) {
   };
 }
 
-async function publishPost({ accessToken, personUrn, text }) {
-  const commentary = prepareCommentary(text);
+async function publishPost({ accessToken, personUrn, text, image }) {
+  const commentary = text?.trim() ? prepareCommentary(text) : '';
+  let imageUrn;
+
+  if (image?.data) {
+    imageUrn = await uploadImage({
+      accessToken,
+      ownerUrn: personUrn,
+      imageBuffer: Buffer.from(image.data, 'base64'),
+      mimeType: image.mimeType,
+    });
+  }
+
+  const body = {
+    author: personUrn,
+    visibility: 'PUBLIC',
+    distribution: {
+      feedDistribution: 'MAIN_FEED',
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false,
+  };
+
+  if (commentary) body.commentary = commentary;
+  if (imageUrn) {
+    body.content = {
+      media: {
+        id: imageUrn,
+      },
+    };
+  }
 
   const res = await fetch('https://api.linkedin.com/rest/posts', {
     method: 'POST',
@@ -65,18 +96,7 @@ async function publishPost({ accessToken, personUrn, text }) {
       'X-Restli-Protocol-Version': '2.0.0',
       'LinkedIn-Version': getLinkedInVersion(),
     },
-    body: JSON.stringify({
-      author: personUrn,
-      commentary,
-      visibility: 'PUBLIC',
-      distribution: {
-        feedDistribution: 'MAIN_FEED',
-        targetEntities: [],
-        thirdPartyDistributionChannels: [],
-      },
-      lifecycleState: 'PUBLISHED',
-      isReshareDisabledByAuthor: false,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (res.status !== 201) {
@@ -93,4 +113,52 @@ async function publishPost({ accessToken, personUrn, text }) {
   return { postId };
 }
 
-module.exports = { escapeLittleText, prepareCommentary, fetchUserInfo, publishPost };
+async function uploadImage({ accessToken, ownerUrn, imageBuffer, mimeType }) {
+  const initRes = await fetch('https://api.linkedin.com/rest/images?action=initializeUpload', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'X-Restli-Protocol-Version': '2.0.0',
+      'LinkedIn-Version': getLinkedInVersion(),
+    },
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: ownerUrn,
+      },
+    }),
+  });
+
+  if (!initRes.ok) {
+    let detail = '';
+    try {
+      detail = JSON.stringify(await initRes.json());
+    } catch (_e) {
+      /* ignore */
+    }
+    throw new Error(`Could not start image upload (${initRes.status}) ${detail}`);
+  }
+
+  const initData = await initRes.json();
+  const uploadUrl = initData?.value?.uploadUrl;
+  const imageUrn = initData?.value?.image;
+  if (!uploadUrl || !imageUrn) {
+    throw new Error('LinkedIn did not return image upload details.');
+  }
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': mimeType || 'application/octet-stream',
+    },
+    body: imageBuffer,
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error(`Image upload failed (${uploadRes.status}).`);
+  }
+
+  return imageUrn;
+}
+
+module.exports = { escapeLittleText, prepareCommentary, fetchUserInfo, publishPost, uploadImage };

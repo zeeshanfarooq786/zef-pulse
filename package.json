@@ -62,7 +62,8 @@
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico",
-      "artifactName": "ZefPulseSetup.exe"
+      "artifactName": "ZefPulseSetup.exe",
+      "publisherName": "Zef Technology"
     },
     "nsis": {
       "oneClick": false,
