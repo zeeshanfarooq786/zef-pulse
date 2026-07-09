@@ -1,4 +1,10 @@
-# Zef Pulse — a LinkedIn posting desktop app
+<p align="center">
+   <img width="400" height="195" alt="Image" src="https://github.com/user-attachments/assets/bbdb29ea-ed62-410b-ac8f-b404671560d6" />
+</p>
+<h1 align="center">Zef Pulse</h1>
+<p align="center"><em>by Zef Technology</em></p>
+ 
+Zef Pulse a LinkedIn posting desktop app
 
 A small Electron + React app: write a post, see a live LinkedIn-style preview,
 click Publish. Built to fix the exact truncation bug you hit in Cursor
